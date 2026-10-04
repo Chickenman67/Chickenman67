@@ -90,6 +90,7 @@ jobs:
       # ------------------------------------------------------------------
       - name: Commit updated cards
         run: |
+          set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
@@ -103,4 +104,18 @@ jobs:
           fi
 
           git commit -m "chore: refresh profile cards"
-          git push
+
+          # The remote can advance between checkout and push (a human
+          # committing, or a run overlapping this one), so rebase and retry
+          # rather than failing the whole workflow on a rejected push.
+          for attempt in 1 2 3; do
+            if git push; then
+              echo "Pushed on attempt ${attempt}."
+              exit 0
+            fi
+            echo "Push rejected on attempt ${attempt}; rebasing onto remote."
+            git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
+          done
+
+          echo "Unable to push after 3 attempts." >&2
+          exit 1
