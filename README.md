@@ -61,7 +61,7 @@
 <table>
 <tr>
   <td valign="top" width="50%">
-    <a href="">
+    <a href="https://github.com/Chickenman67/Paint">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-1.svg">
         <img src="./assets/project-light-1.svg" alt="Paint" width="236" />
@@ -69,7 +69,7 @@
     </a>
   </td>
   <td valign="top" width="50%">
-    <a href="">
+    <a href="https://github.com/Chickenman67/GodEngine">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-2.svg">
         <img src="./assets/project-light-2.svg" alt="GodEngine" width="236" />
@@ -79,7 +79,7 @@
 </tr>
 <tr>
   <td valign="top" width="50%">
-    <a href="">
+    <a href="https://github.com/Chickenman67/OperaGX-Spoofer">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-3.svg">
         <img src="./assets/project-light-3.svg" alt="OperaGX-Spoofer" width="236" />
@@ -87,7 +87,7 @@
     </a>
   </td>
   <td valign="top" width="50%">
-    <a href="">
+    <a href="https://github.com/Chickenman67/AutoSerach">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-4.svg">
         <img src="./assets/project-light-4.svg" alt="AutoSerach" width="236" />
@@ -97,7 +97,7 @@
 </tr>
 <tr>
   <td valign="top" width="50%">
-    <a href="">
+    <a href="https://github.com/Chickenman67/CBZ-Viewer-Optimized">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-5.svg">
         <img src="./assets/project-light-5.svg" alt="CBZ-Viewer-Optimized" width="236" />
@@ -105,7 +105,7 @@
     </a>
   </td>
   <td valign="top" width="50%">
-    <a href="">
+    <a href="https://github.com/Chickenman67/CBZ-Viewer">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-6.svg">
         <img src="./assets/project-light-6.svg" alt="CBZ-Viewer" width="236" />

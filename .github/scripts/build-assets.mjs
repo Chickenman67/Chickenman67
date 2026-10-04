@@ -110,7 +110,10 @@ const projects = ordered
   .slice(0, SLOTS)
   .map((repo) => ({
     name: repo.name,
-    url: repo.html_url,
+    // GraphQL calls this field `url` (the REST API calls it `html_url`).
+    // It is also derived here so a project can never end up with an empty
+    // href just because the query changed shape.
+    url: repo.url ?? `https://github.com/${owner}/${repo.name}`,
     description: repo.description,
     language: repo.primaryLanguage?.name ?? null,
     languageColor: repo.primaryLanguage?.color ?? null,
