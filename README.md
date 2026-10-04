@@ -1,6 +1,12 @@
 <p align="center">
-  <!-- Hero banner, generated locally by .github/scripts/cards.mjs -->
-  <img src="./assets/hero.svg" alt="Kevin Lu — I build small tools that do one job properly" width="780" />
+  <!-- Hero banner, generated locally by .github/scripts/cards.mjs.
+       The narrow variant is swapped in below 700px: the wide banner has a
+       fixed aspect ratio, so scaling it to a phone shrinks the tagline to
+       roughly 4px. -->
+  <picture>
+    <source media="(max-width: 700px)" srcset="./assets/hero-narrow.svg">
+    <img src="./assets/hero.svg" alt="Kevin Lu — I build small tools that do one job properly" width="780" />
+  </picture>
 </p>
 
 <p align="center">
@@ -64,7 +70,7 @@
     <a href="https://github.com/Chickenman67/Paint">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-1.svg">
-        <img src="./assets/project-light-1.svg" alt="Paint" width="236" />
+        <img src="./assets/project-light-1.svg" alt="Paint" width="340" />
       </picture>
     </a>
   </td>
@@ -72,7 +78,7 @@
     <a href="https://github.com/Chickenman67/GodEngine">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-2.svg">
-        <img src="./assets/project-light-2.svg" alt="GodEngine" width="236" />
+        <img src="./assets/project-light-2.svg" alt="GodEngine" width="340" />
       </picture>
     </a>
   </td>
@@ -82,7 +88,7 @@
     <a href="https://github.com/Chickenman67/OperaGX-Spoofer">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-3.svg">
-        <img src="./assets/project-light-3.svg" alt="OperaGX-Spoofer" width="236" />
+        <img src="./assets/project-light-3.svg" alt="OperaGX-Spoofer" width="340" />
       </picture>
     </a>
   </td>
@@ -90,7 +96,7 @@
     <a href="https://github.com/Chickenman67/AutoSerach">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-4.svg">
-        <img src="./assets/project-light-4.svg" alt="AutoSerach" width="236" />
+        <img src="./assets/project-light-4.svg" alt="AutoSerach" width="340" />
       </picture>
     </a>
   </td>
@@ -100,7 +106,7 @@
     <a href="https://github.com/Chickenman67/CBZ-Viewer-Optimized">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-5.svg">
-        <img src="./assets/project-light-5.svg" alt="CBZ-Viewer-Optimized" width="236" />
+        <img src="./assets/project-light-5.svg" alt="CBZ-Viewer-Optimized" width="340" />
       </picture>
     </a>
   </td>
@@ -108,7 +114,7 @@
     <a href="https://github.com/Chickenman67/CBZ-Viewer">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-6.svg">
-        <img src="./assets/project-light-6.svg" alt="CBZ-Viewer" width="236" />
+        <img src="./assets/project-light-6.svg" alt="CBZ-Viewer" width="340" />
       </picture>
     </a>
   </td>

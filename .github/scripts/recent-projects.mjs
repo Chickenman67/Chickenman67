@@ -47,7 +47,7 @@ function buildGrid() {
     <a href="${escapeHtml(repo.url)}">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-${index + 1}.svg">
-        <img src="./assets/project-light-${index + 1}.svg" alt="${escapeHtml(repo.name)}" width="236" />
+        <img src="./assets/project-light-${index + 1}.svg" alt="${escapeHtml(repo.name)}" width="340" />
       </picture>
     </a>
   </td>`,

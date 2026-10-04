@@ -197,27 +197,32 @@ export function activityCard({ mode, weeks, totalContributions, currentStreak, l
 /**
  * A compact project card. Uses GitHub's real language colour as the accent
  * so each project is visually identifiable at a glance.
+ *
+ * The card is 340px wide rather than the old 236px: GitHub's README column
+ * is about 730px, so a two-up grid of 236px cards left roughly 260px of dead
+ * space on the right and the grid read as "slim". 340px fills the column and
+ * gives the description two comfortable lines instead of three cramped ones.
  */
 export function projectCard({ mode, name, description, language, languageColor, stars }) {
-  const width = 236;
-  const height = 116;
+  const width = 340;
+  const height = 112;
   const c = PALETTE[mode];
   const accent = languageColor ?? c.accent;
-  const title = name.length > 26 ? `${name.slice(0, 25)}…` : name;
+  const title = name.length > 30 ? `${name.slice(0, 29)}…` : name;
 
   const desc = description && description.trim()
     ? description.trim()
     : "No description yet.";
 
-  // Three lines of body text maximum.
-  const lines = wrap(desc, 30).slice(0, 3);
+  // Two lines of body text maximum.
+  const lines = wrap(desc, 46).slice(0, 2);
 
   const body = `  <rect x="0" y="0" width="4" height="${height}" rx="2" fill="${accent}"/>
-  <text x="20" y="34" font-family="${FONT}" font-size="14.5" font-weight="650" fill="${c.title}">${escapeXml(title)}</text>
+  <text x="20" y="32" font-family="${FONT}" font-size="15" font-weight="650" fill="${c.title}">${escapeXml(title)}</text>
 ${lines
   .map(
     (line, index) =>
-      `  <text x="20" y="${56 + index * 16}" font-family="${FONT}" font-size="11.5" fill="${c.muted}">${escapeXml(line)}</text>`,
+      `  <text x="20" y="${54 + index * 17}" font-family="${FONT}" font-size="12" fill="${c.muted}">${escapeXml(line)}</text>`,
   )
   .join("\n")}
   <text x="20" y="${height - 12}" font-family="${FONT}" font-size="11" fill="${c.muted}">
@@ -436,10 +441,25 @@ export function snakeSvg({ mode, cells, totalContributions }) {
  * so the ambient gradient animation survives GitHub's sanitiser, which
  * strips <script> but keeps <style>.
  */
-export function heroSvg({ name, tagline, mode = "dark" }) {
-  const width = 780;
-  const height = 190;
+export function heroSvg({ name, tagline, mode = "dark", narrow = false }) {
+  const width = narrow ? 420 : 780;
+  const height = narrow ? 216 : 190;
+  const pad = narrow ? 28 : 40;
   const c = PALETTE[mode];
+
+  // A single fixed-ratio banner scaled down to a phone shrinks the tagline to
+  // roughly 4px and leaves it unreadable. Rather than drop the tagline on
+  // small screens, this renders a second, taller variant with proportionally
+  // larger type, and the README swaps it in below 700px.
+  const titleSize = narrow ? 34 : 42;
+  const taglineSize = narrow ? 13 : 15;
+  const taglineLines = wrap(tagline, narrow ? 40 : 62);
+  const taglineTop = narrow ? 100 : 128;
+  const pillsTop = narrow ? 152 : 150;
+  const haloR = narrow ? 92 : 120;
+  const blobs = narrow
+    ? [[70, 46, 100], [352, 128, 112], [212, 172, 88]]
+    : [[130, 60, 150], [660, 150, 170], [420, 200, 130]];
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeXml(name)} — ${escapeXml(tagline)}">
   <style>
@@ -490,18 +510,23 @@ export function heroSvg({ name, tagline, mode = "dark" }) {
 
   <g clip-path="url(#frame)">
     <rect width="${width}" height="${height}" fill="url(#backdrop)"/>
-    <circle class="blob"   cx="130" cy="60"  r="150" fill="url(#glowA)"/>
-    <circle class="blob blob-2" cx="660" cy="150" r="170" fill="url(#glowB)"/>
-    <circle class="blob"   cx="420" cy="200" r="130" fill="url(#glowC)"/>
-    <rect class="sheen" x="0" y="0" width="180" height="${height}" fill="#ffffff" opacity="0.045" transform="skewX(-18)"/>
+    <circle class="blob"   cx="${blobs[0][0]}" cy="${blobs[0][1]}" r="${blobs[0][2]}" fill="url(#glowA)"/>
+    <circle class="blob blob-2" cx="${blobs[1][0]}" cy="${blobs[1][1]}" r="${blobs[1][2]}" fill="url(#glowB)"/>
+    <circle class="blob"   cx="${blobs[2][0]}" cy="${blobs[2][1]}" r="${blobs[2][2]}" fill="url(#glowC)"/>
+    <rect class="sheen" x="0" y="0" width="${narrow ? 110 : 180}" height="${height}" fill="#ffffff" opacity="0.045" transform="skewX(-18)"/>
   </g>
 
-  <circle class="halo" cx="${width / 2}" cy="${height / 2}" r="120" fill="none" stroke="#1f6feb" stroke-opacity="0.14" stroke-width="1.5"/>
+  <circle class="halo" cx="${width / 2}" cy="${height / 2}" r="${haloR}" fill="none" stroke="#1f6feb" stroke-opacity="0.14" stroke-width="1.5"/>
   <rect x="0.5" y="0.5" width="${width - 1}" height="${height - 1}" rx="18" fill="none" stroke="#30363d"/>
 
-  <text x="40" y="92" font-family="${FONT}" font-size="42" font-weight="700" fill="url(#title)">${escapeXml(name)}</text>
-  <text x="40" y="128" font-family="${MONO}" font-size="15" fill="#9198a1">${escapeXml(tagline)}</text>
-  <g transform="translate(40 150)">
+  <text x="${pad}" y="${narrow ? 66 : 92}" font-family="${FONT}" font-size="${titleSize}" font-weight="700" fill="url(#title)">${escapeXml(name)}</text>
+${taglineLines
+  .map(
+    (line, index) =>
+      `  <text x="${pad}" y="${taglineTop + index * 18}" font-family="${MONO}" font-size="${taglineSize}" fill="#9198a1">${escapeXml(line)}</text>`,
+  )
+  .join("\n")}
+  <g transform="translate(${pad} ${pillsTop})">
     <rect width="104" height="24" rx="12" fill="#1f6feb" fill-opacity="0.16" stroke="#1f6feb" stroke-opacity="0.45"/>
     <text x="52" y="16" text-anchor="middle" font-family="${MONO}" font-size="11.5" fill="#79c0ff">automation</text>
     <rect x="112" width="86" height="24" rx="12" fill="#8957e5" fill-opacity="0.16" stroke="#8957e5" stroke-opacity="0.45"/>
@@ -509,7 +534,7 @@ export function heroSvg({ name, tagline, mode = "dark" }) {
     <rect x="206" width="72" height="24" rx="12" fill="#238636" fill-opacity="0.18" stroke="#238636" stroke-opacity="0.5"/>
     <text x="242" y="16" text-anchor="middle" font-family="${MONO}" font-size="11.5" fill="#56d364">web apps</text>
   </g>
-  <text x="${width - 40}" y="${height - 22}" text-anchor="end" font-family="${MONO}" font-size="11" fill="#6e7681">github.com/Chickenman67</text>
+  <text x="${width - pad}" y="${height - 22}" text-anchor="end" font-family="${MONO}" font-size="11" fill="#6e7681">github.com/Chickenman67</text>
 </svg>
 `;
 }

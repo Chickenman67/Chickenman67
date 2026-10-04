@@ -162,6 +162,18 @@ write(
   }),
 );
 
+// A second banner for phones. The wide one has a fixed aspect ratio, so
+// scaling it to a ~370px column shrinks the tagline to roughly 4px. This
+// variant is taller with proportionally larger type and stays legible.
+write(
+  "hero-narrow.svg",
+  heroSvg({
+    name: "Kevin Lu",
+    tagline: "I build small tools that do one job properly.",
+    narrow: true,
+  }),
+);
+
 /* ---- snake ------------------------------------------------------- */
 
 // The snake visits every day that had at least one contribution, walking

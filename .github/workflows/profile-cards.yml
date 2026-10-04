@@ -81,6 +81,18 @@ jobs:
         run: node .github/scripts/recent-projects.mjs
 
       # ------------------------------------------------------------------
+      # Refuse to publish a broken page.
+      #
+      # Everything above can succeed while producing something visibly wrong
+      # -- an unresolved field yields an empty href, a renamed asset leaves a
+      # dangling reference. GitHub renders the result with no way to report
+      # that back, so the check has to happen here, before the commit. The
+      # `url` bug in particular shipped six dead links unnoticed.
+      # ------------------------------------------------------------------
+      - name: Validate generated output
+        run: node .github/scripts/validate.mjs
+
+      # ------------------------------------------------------------------
       # Commit whatever changed
       # ------------------------------------------------------------------
       - name: Commit updated cards
