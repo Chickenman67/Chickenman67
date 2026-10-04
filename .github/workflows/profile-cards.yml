@@ -51,7 +51,7 @@ jobs:
           options: >-
             username=${{ github.repository_owner }}&show_icons=true&theme=light_github&hide_rank=false&rank_icon=github&contribs_include_own_repos=true&include_all_commits=false&custom_title=Kevin%20Lu%20%E2%80%94%20GitHub%20Stats&disable_animations=true
 
-# ------------------------------------------------------------------
+      # ------------------------------------------------------------------
       # Top languages card — compact layout, 8 languages
       # ------------------------------------------------------------------
       - name: Generate top languages card (dark)
@@ -94,7 +94,7 @@ jobs:
           options: >-
             user=${{ github.repository_owner }}&theme=default&hide_border=true&disable_animations=true&date_format=YYYY-MM-DD
 
-# ------------------------------------------------------------------
+      # ------------------------------------------------------------------
       # Auto-discover recently active repositories and rewrite the block
       # of README.md between the AUTO markers.
       #
