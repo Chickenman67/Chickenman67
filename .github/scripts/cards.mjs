@@ -301,4 +301,193 @@ ${rows}
 `;
 }
 
+/* ------------------------------------------------------------------ */
+/* Snake                                                               */
+/* ------------------------------------------------------------------ */
+
+/**
+ * A snake that eats your contribution graph, cell by cell.
+ *
+ * Inspired by Platane/snk, but drawn here so it matches the rest of the
+ * design system, fits GitHub's content column, and ships a light and a
+ * dark variant. The upstream SVG is 880px wide and light-only, which is
+ * why this is reimplemented rather than embedded.
+ *
+ * The path is precomputed here and revealed with a CSS animation, so the
+ * browser only has to interpolate one dash-offset. No JavaScript, which
+ * GitHub strips from SVGs anyway.
+ */
+export function snakeSvg({ mode, cells, totalContributions }) {
+  const width = 495;
+  const padding = 20;
+  const usable = width - padding * 2;
+  const gap = 3;
+  const rows = 7;
+  const top = 58;
+
+  const cols = cells.cols;
+  const cell = Math.max(4, Math.floor((usable - gap * (cols - 1)) / cols));
+
+  // The snake only ever visits days that had a contribution, so the grid
+  // it walks is offset to the first active week. Without this the creature
+  // would drift through a wide empty band before reaching any real data.
+  const firstActiveCol = cells.grid.length ? cells.grid[0].col : 0;
+  const activeCols = cols - firstActiveCol;
+
+  const grid = cells.grid.map((point) => {
+    const col = point.col - firstActiveCol;
+    return {
+      x: padding + col * (cell + gap) + cell / 2,
+      y: top + point.row * (cell + gap) + cell / 2,
+    };
+  });
+
+  const height = top + rows * (cell + gap) + 34;
+  const c = PALETTE[mode];
+
+  // Total path length, so the dash animation reveals the snake exactly
+  // once per cycle instead of revealing a guess.
+  let length = 0;
+  const segments = [];
+  grid.forEach((point, index) => {
+    const command = index === 0 ? "M" : "L";
+    segments.push(`${command}${point.x.toFixed(1)} ${point.y.toFixed(1)}`);
+    if (index > 0) {
+      const previous = grid[index - 1];
+      length += Math.hypot(point.x - previous.x, point.y - previous.y);
+    }
+  });
+
+  const head = grid[0] ?? { x: padding + cell / 2, y: top + cell / 2 };
+  const total = Math.ceil(length) + 2;
+
+  // Pace it so the snake never looks frozen or frantic: roughly one cell
+  // per 90ms, clamped to a comfortable window.
+  const duration = Math.min(40, Math.max(10, (activeCols * rows * 0.09) / 10) * 10);
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Snake eating ${escapeXml(totalContributions)} contributions">
+  <style>
+    @keyframes crawl {
+      from { stroke-dashoffset: ${total}; }
+      to   { stroke-dashoffset: 0; }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; r: ${(cell * 0.3).toFixed(2)}; }
+      50%      { opacity: 0.5; }
+    }
+    .snake {
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-dasharray: ${total};
+      stroke-dashoffset: ${total};
+      animation: crawl ${duration}s linear infinite;
+    }
+    .pulse { animation: pulse 1.8s ease-in-out infinite; }
+  </style>
+  <defs>
+    <linearGradient id="snakeGradient" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#3fb950"/>
+      <stop offset="55%" stop-color="#58a6ff"/>
+      <stop offset="100%" stop-color="#a371f7"/>
+    </linearGradient>
+  </defs>
+  <rect x="0.5" y="0.5" width="${width - 1}" height="${height - 1}" rx="12" fill="${c.bg}" stroke="${c.border}"/>
+  <text x="${padding}" y="31" font-family="${FONT}" font-size="15" font-weight="600" fill="${c.title}">Contribution Snake</text>
+  <text x="${width - padding}" y="31" text-anchor="end" font-family="${FONT}" font-size="12" fill="${c.muted}">${escapeXml(totalContributions)} commits eaten</text>
+  <path class="snake" d="${segments.join(" ")}" stroke="url(#snakeGradient)" stroke-width="${Math.max(2.5, cell * 0.62).toFixed(2)}"/>
+  <circle class="pulse" cx="${head.x.toFixed(1)}" cy="${head.y.toFixed(1)}" r="${(cell * 0.3).toFixed(2)}" fill="#3fb950"/>
+</svg>
+`;
+}
+
+/* ------------------------------------------------------------------ */
+/* Hero banner                                                         */
+/* ------------------------------------------------------------------ */
+
+/**
+ * The wide banner at the top of the profile.
+ *
+ * Drawn as an SVG rather than an image so it stays sharp at any width and
+ * so the ambient gradient animation survives GitHub's sanitiser, which
+ * strips <script> but keeps <style>.
+ */
+export function heroSvg({ name, tagline, mode = "dark" }) {
+  const width = 780;
+  const height = 190;
+  const c = PALETTE[mode];
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeXml(name)} — ${escapeXml(tagline)}">
+  <style>
+    @keyframes drift {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33%      { transform: translate(26px, -18px) scale(1.06); }
+      66%      { transform: translate(-22px, 14px) scale(0.97); }
+    }
+    @keyframes sweep {
+      from { transform: translateX(-120%); }
+      to   { transform: translateX(220%); }
+    }
+    @keyframes glow {
+      0%, 100% { opacity: 0.55; }
+      50%      { opacity: 0.95; }
+    }
+    .blob   { animation: drift 26s ease-in-out infinite; transform-origin: center; }
+    .blob-2 { animation-duration: 34s; animation-direction: reverse; }
+    .sheen  { animation: sweep 7.5s linear infinite; }
+    .halo   { animation: glow 4.5s ease-in-out infinite; }
+  </style>
+  <defs>
+    <linearGradient id="backdrop" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="55%" stop-color="#161b22"/>
+      <stop offset="100%" stop-color="#0d1117"/>
+    </linearGradient>
+    <radialGradient id="glowA">
+      <stop offset="0%" stop-color="#1f6feb" stop-opacity="0.75"/>
+      <stop offset="100%" stop-color="#1f6feb" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowB">
+      <stop offset="0%" stop-color="#8957e5" stop-opacity="0.7"/>
+      <stop offset="100%" stop-color="#8957e5" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowC">
+      <stop offset="0%" stop-color="#238636" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#238636" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="title" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#e6edf3"/>
+      <stop offset="100%" stop-color="#79c0ff"/>
+    </linearGradient>
+    <clipPath id="frame">
+      <rect x="0.5" y="0.5" width="${width - 1}" height="${height - 1}" rx="18"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#frame)">
+    <rect width="${width}" height="${height}" fill="url(#backdrop)"/>
+    <circle class="blob"   cx="130" cy="60"  r="150" fill="url(#glowA)"/>
+    <circle class="blob blob-2" cx="660" cy="150" r="170" fill="url(#glowB)"/>
+    <circle class="blob"   cx="420" cy="200" r="130" fill="url(#glowC)"/>
+    <rect class="sheen" x="0" y="0" width="180" height="${height}" fill="#ffffff" opacity="0.045" transform="skewX(-18)"/>
+  </g>
+
+  <circle class="halo" cx="${width / 2}" cy="${height / 2}" r="120" fill="none" stroke="#1f6feb" stroke-opacity="0.14" stroke-width="1.5"/>
+  <rect x="0.5" y="0.5" width="${width - 1}" height="${height - 1}" rx="18" fill="none" stroke="#30363d"/>
+
+  <text x="40" y="92" font-family="${FONT}" font-size="42" font-weight="700" fill="url(#title)">${escapeXml(name)}</text>
+  <text x="40" y="128" font-family="${MONO}" font-size="15" fill="#9198a1">${escapeXml(tagline)}</text>
+  <g transform="translate(40 150)">
+    <rect width="104" height="24" rx="12" fill="#1f6feb" fill-opacity="0.16" stroke="#1f6feb" stroke-opacity="0.45"/>
+    <text x="52" y="16" text-anchor="middle" font-family="${MONO}" font-size="11.5" fill="#79c0ff">automation</text>
+    <rect x="112" width="86" height="24" rx="12" fill="#8957e5" fill-opacity="0.16" stroke="#8957e5" stroke-opacity="0.45"/>
+    <text x="155" y="16" text-anchor="middle" font-family="${MONO}" font-size="11.5" fill="#d2a8ff">file viewers</text>
+    <rect x="206" width="72" height="24" rx="12" fill="#238636" fill-opacity="0.18" stroke="#238636" stroke-opacity="0.5"/>
+    <text x="242" y="16" text-anchor="middle" font-family="${MONO}" font-size="11.5" fill="#56d364">web apps</text>
+  </g>
+  <text x="${width - 40}" y="${height - 22}" text-anchor="end" font-family="${MONO}" font-size="11" fill="#6e7681">github.com/Chickenman67</text>
+</svg>
+`;
+}
+
 export { PALETTE, FONT, MONO, escapeXml, shell, wrap };

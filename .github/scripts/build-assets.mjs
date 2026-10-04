@@ -14,7 +14,8 @@ import {
   languagesCard,
   activityCard,
   projectCard,
-  headerSvg,
+  snakeSvg,
+  heroSvg,
 } from "./cards.mjs";
 
 /**
@@ -118,20 +119,41 @@ function write(name, contents) {
   written.push(name);
 }
 
-/* ---- header ------------------------------------------------------ */
+/* ---- hero banner -------------------------------------------------- */
 
 write(
-  "header.svg",
-  headerSvg({
-    lines: [
-      "> automation scripts & pipelines",
-      "> file viewers & readers",
-      "> web apps & weekend experiments",
-      "> python / js / ts / html / wolfram",
-    ],
-    colors: ["#58a6ff", "#a371f7", "#3fb950", "#f0883e"],
+  "hero.svg",
+  heroSvg({
+    name: "Kevin Lu",
+    tagline: "I build small tools that do one job properly.",
   }),
 );
+
+/* ---- snake ------------------------------------------------------- */
+
+// The snake visits every day that had at least one contribution, walking
+// the calendar in reading order.
+const snakeGrid = [];
+calendar.weeks.forEach((week, col) => {
+  week.contributionDays.forEach((day, row) => {
+    if (day.contributionCount > 0) snakeGrid.push({ col, row });
+  });
+});
+
+for (const mode of ["light", "dark"]) {
+  write(
+    `snake-${mode}.svg`,
+    snakeSvg({
+      mode,
+      cells: {
+        cols: calendar.weeks.length,
+        grid: snakeGrid,
+        counts: snakeGrid.length,
+      },
+      totalContributions: calendar.totalContributions,
+    }),
+  );
+}
 
 /* ---- stats + languages ------------------------------------------ */
 

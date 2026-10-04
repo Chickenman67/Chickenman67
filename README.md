@@ -1,17 +1,29 @@
 # Kevin Lu
 
 <p align="center">
-  <!-- Animated header, generated locally by .github/scripts/cards.mjs -->
-  <img src="./assets/header.svg" alt="automation scripts, file viewers, web apps" width="720" />
-</p>
-
-<p align="center">
-  I make small, focused tools — mostly <b>automation scripts</b> and <b>file viewers</b>,
-  plus the occasional web app I wanted to exist.
+  <!-- Hero banner, generated locally by .github/scripts/cards.mjs -->
+  <img src="./assets/hero.svg" alt="Kevin Lu — I build small tools that do one job properly" width="780" />
 </p>
 
 <p align="center">
   <img src="https://skillicons.dev/icons?i=python,js,ts,html,git,github&theme=dark" alt="Python, JavaScript, TypeScript, HTML and Git" height="30" />
+</p>
+
+<p align="center">
+  I make small, focused tools — mostly <b>automation scripts</b> and <b>file viewers</b> —
+  plus the occasional web app I wished already existed.
+  Everything on this page rebuilds itself every night while I sleep.
+</p>
+
+---
+
+## 🐍 Contribution Snake
+
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./assets/snake-dark.svg">
+    <img src="./assets/snake-light.svg" alt="Snake eating your contribution graph" width="495" />
+  </picture>
 </p>
 
 ---
@@ -32,13 +44,57 @@
   </picture>
 </p>
 
-## 🗓️ Activity
+## 🗓️ Year in Review
 
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="./assets/activity-dark.svg">
     <img src="./assets/activity-light.svg" alt="Contribution activity over the last year" width="495" />
   </picture>
+</p>
+
+## 🗂️ Selected Projects
+
+<p align="center">
+  <a href="https://github.com/Chickenman67/Paint">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-Paint.svg">
+      <img src="./assets/project-light-Paint.svg" alt="Paint" width="236" />
+    </picture>
+  </a>
+  <a href="https://github.com/Chickenman67/KnowYourClassAction">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-KnowYourClassAction.svg">
+      <img src="./assets/project-light-KnowYourClassAction.svg" alt="KnowYourClassAction" width="236" />
+    </picture>
+  </a>
+  <a href="https://github.com/Chickenman67/marginalia">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-marginalia.svg">
+      <img src="./assets/project-light-marginalia.svg" alt="marginalia" width="236" />
+    </picture>
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/Chickenman67/video-player">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-video-player.svg">
+      <img src="./assets/project-light-video-player.svg" alt="video-player" width="236" />
+    </picture>
+  </a>
+  <a href="https://github.com/Chickenman67/Contributor">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-Contributor.svg">
+      <img src="./assets/project-light-Contributor.svg" alt="Contributor" width="236" />
+    </picture>
+  </a>
+  <a href="https://github.com/Chickenman67/video-player-ez">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-video-player-ez.svg">
+      <img src="./assets/project-light-video-player-ez.svg" alt="video-player-ez" width="236" />
+    </picture>
+  </a>
 </p>
 
 ## 🚧 Recently Worked On
@@ -84,6 +140,5 @@
 ---
 
 <div align="center">
-  <sub>The cards above are generated from live GitHub data every day by
-  <a href="https://github.com/Chickenman67/Chickenman67/actions">GitHub Actions</a>.</sub>
+  <sub>🐍 The snake is eating my last 12 months of commits.</sub>
 </div>
