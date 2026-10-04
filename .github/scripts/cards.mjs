@@ -323,80 +323,95 @@ export function snakeSvg({ mode, cells, totalContributions }) {
   const usable = width - padding * 2;
   const gap = 3;
   const rows = 7;
-  const top = 58;
+  const top = 54;
+  const c = PALETTE[mode];
+  const levels = LEVELS[mode];
 
   const cols = cells.cols;
   const cell = Math.max(4, Math.floor((usable - gap * (cols - 1)) / cols));
+  const height = top + rows * (cell + gap) + 18;
 
-  // The snake only ever visits days that had a contribution, so the grid
-  // it walks is offset to the first active week. Without this the creature
-  // would drift through a wide empty band before reaching any real data.
+  // The snake only visits days that had a contribution, so the whole scene
+  // is offset to the first active week instead of idling through dead space.
   const firstActiveCol = cells.grid.length ? cells.grid[0].col : 0;
   const activeCols = cols - firstActiveCol;
 
-  const grid = cells.grid.map((point) => {
-    const col = point.col - firstActiveCol;
-    return {
-      x: padding + col * (cell + gap) + cell / 2,
-      y: top + point.row * (cell + gap) + cell / 2,
-    };
+  // Wider cells look better once the empty weeks are cropped away.
+  const liveCell = Math.max(
+    4,
+    Math.min(9, Math.floor((usable - gap * (activeCols - 1)) / activeCols)),
+  );
+  const step = liveCell + gap;
+  const offsetX = padding + Math.round((usable - (activeCols * step - gap)) / 2);
+
+  const pos = (point) => ({
+    x: offsetX + (point.col - firstActiveCol) * step + liveCell / 2,
+    y: top + point.row * step + liveCell / 2,
   });
 
-  const height = top + rows * (cell + gap) + 34;
-  const c = PALETTE[mode];
+  // Draw the whole calendar so the snake has something to eat.
+  const squares = cells.all
+    .map((point) => {
+      const p = pos(point);
+      return `<rect x="${(p.x - liveCell / 2).toFixed(1)}" y="${(p.y - liveCell / 2).toFixed(1)}" width="${liveCell}" height="${liveCell}" rx="1.5" fill="${levels[point.level]}"/>`;
+    })
+    .join("");
 
-  // Total path length, so the dash animation reveals the snake exactly
-  // once per cycle instead of revealing a guess.
+  // The body travels the path as a short bright segment rather than
+  // growing from nothing, so there is always something visible to look at.
+  const pathPoints = cells.grid.map(pos);
   let length = 0;
   const segments = [];
-  grid.forEach((point, index) => {
-    const command = index === 0 ? "M" : "L";
-    segments.push(`${command}${point.x.toFixed(1)} ${point.y.toFixed(1)}`);
+  pathPoints.forEach((p, index) => {
+    segments.push(`${index === 0 ? "M" : "L"}${p.x.toFixed(1)} ${p.y.toFixed(1)}`);
     if (index > 0) {
-      const previous = grid[index - 1];
-      length += Math.hypot(point.x - previous.x, point.y - previous.y);
+      const prev = pathPoints[index - 1];
+      length += Math.hypot(p.x - prev.x, p.y - prev.y);
     }
   });
 
-  const head = grid[0] ?? { x: padding + cell / 2, y: top + cell / 2 };
   const total = Math.ceil(length) + 2;
+  const bodyLength = Math.max(26, Math.min(90, Math.round(activeCols * step * 0.55)));
+  const stroke = Math.max(3, liveCell * 0.72);
 
-  // Pace it so the snake never looks frozen or frantic: roughly one cell
-  // per 90ms, clamped to a comfortable window.
-  const duration = Math.min(40, Math.max(10, (activeCols * rows * 0.09) / 10) * 10);
+  // Roughly 170px per second: quick enough to feel alive, slow enough to
+  // follow with your eyes.
+  const duration = Math.min(14, Math.max(6, Number((total / 170).toFixed(1))));
 
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="Snake eating ${escapeXml(totalContributions)} contributions">
+  const head = pathPoints[0] ?? { x: offsetX + liveCell / 2, y: top + liveCell / 2 };
+
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="A snake eating ${escapeXml(totalContributions)} contributions">
   <style>
-    @keyframes crawl {
-      from { stroke-dashoffset: ${total}; }
-      to   { stroke-dashoffset: 0; }
+    @keyframes slither {
+      from { stroke-dashoffset: ${bodyLength}; }
+      to   { stroke-dashoffset: ${-total - bodyLength}; }
     }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; r: ${(cell * 0.3).toFixed(2)}; }
-      50%      { opacity: 0.5; }
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%      { opacity: 0.35; }
     }
     .snake {
       fill: none;
       stroke-linecap: round;
       stroke-linejoin: round;
-      stroke-dasharray: ${total};
-      stroke-dashoffset: ${total};
-      animation: crawl ${duration}s linear infinite;
+      stroke-dasharray: ${bodyLength} ${total + bodyLength * 2};
+      animation: slither ${duration}s linear infinite;
     }
-    .pulse { animation: pulse 1.8s ease-in-out infinite; }
+    .eye { animation: blink 0.9s steps(1) infinite; }
   </style>
   <defs>
-    <linearGradient id="snakeGradient" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="#3fb950"/>
+    <linearGradient id="snakeSkin" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#a371f7"/>
       <stop offset="55%" stop-color="#58a6ff"/>
-      <stop offset="100%" stop-color="#a371f7"/>
+      <stop offset="100%" stop-color="#3fb950"/>
     </linearGradient>
   </defs>
   <rect x="0.5" y="0.5" width="${width - 1}" height="${height - 1}" rx="12" fill="${c.bg}" stroke="${c.border}"/>
-  <text x="${padding}" y="31" font-family="${FONT}" font-size="15" font-weight="600" fill="${c.title}">Contribution Snake</text>
-  <text x="${width - padding}" y="31" text-anchor="end" font-family="${FONT}" font-size="12" fill="${c.muted}">${escapeXml(totalContributions)} commits eaten</text>
-  <path class="snake" d="${segments.join(" ")}" stroke="url(#snakeGradient)" stroke-width="${Math.max(2.5, cell * 0.62).toFixed(2)}"/>
-  <circle class="pulse" cx="${head.x.toFixed(1)}" cy="${head.y.toFixed(1)}" r="${(cell * 0.3).toFixed(2)}" fill="#3fb950"/>
+  <text x="${padding}" y="30" font-family="${FONT}" font-size="13.5" font-weight="600" fill="${c.title}">Contribution Snake</text>
+  <text x="${width - padding}" y="30" text-anchor="end" font-family="${FONT}" font-size="11.5" fill="${c.muted}">${escapeXml(totalContributions)} commits · ${escapeXml(activeCols)} active weeks</text>
+  ${squares}
+  <path class="snake" d="${segments.join(" ")}" stroke="url(#snakeSkin)" stroke-width="${stroke.toFixed(2)}"/>
+  <circle class="eye" cx="${head.x.toFixed(1)}" cy="${head.y.toFixed(1)}" r="${(liveCell * 0.26).toFixed(2)}" fill="#a371f7"/>
 </svg>
 `;
 }

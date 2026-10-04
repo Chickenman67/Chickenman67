@@ -15,26 +15,17 @@
 
 import { readFileSync, writeFileSync } from "node:fs";
 
-const START = "<!-- AUTO:RECENT:START -->";
-const END = "<!-- AUTO:RECENT:END -->";
-const LIMIT = 3;
+const START = "<!-- AUTO:PROJECTS:START -->";
+const END = "<!-- AUTO:PROJECTS:END -->";
 
-const owner = process.env.OWNER;
-if (!owner) {
-  console.error("OWNER environment variable is not set.");
-  process.exit(1);
-}
+/**
+ * The ordered project list is produced by build-assets.mjs, which also
+ * renders the card images. Consuming that same file guarantees the links
+ * and the pictures can never drift apart.
+ */
+const projects = JSON.parse(readFileSync(".projects.json", "utf8"));
 
-const featured = new Set(
-  (process.env.FEATURED ?? "")
-    .split(",")
-    .map((name) => name.trim())
-    .filter(Boolean),
-);
-
-const repos = JSON.parse(readFileSync(process.env.REPOS_FILE ?? "/tmp/repos.json", "utf8"));
-
-/** Escape text before it lands inside an HTML table cell. */
+/** Escape text before it lands inside an HTML attribute. */
 const escapeHtml = (value) =>
   String(value ?? "")
     .replaceAll("&", "&amp;")
@@ -42,52 +33,37 @@ const escapeHtml = (value) =>
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
 
-/** Escape pipes so a `|` in a description can't break the markdown table. */
-const escapePipes = (value) => String(value ?? "").replaceAll("|", "\\|");
-
-/** Truncate on a word boundary so cards stay a consistent height. */
-const truncate = (value, max) => {
-  const text = String(value ?? "").trim();
-  if (text.length <= max) return text;
-  const cut = text.slice(0, max);
-  return `${cut.slice(0, cut.lastIndexOf(" "))}…`;
-};
-
-// The profile repo itself is never a "project".
-const isProfileRepo = (repo) => repo.name === owner;
-
-const candidates = repos
-  .filter((repo) => !repo.fork && !repo.archived && !isProfileRepo(repo))
-  .filter((repo) => !featured.has(repo.name))
-  .slice(0, LIMIT);
-
-function buildTable() {
-  if (candidates.length === 0) {
-    return `_No recently active projects found._`;
+/**
+ * Builds the project grid. Card images live in fixed numbered slots, so
+ * this block only has to keep the links in step with that ordering.
+ */
+function buildGrid() {
+  if (projects.length === 0) {
+    return `_No recent projects found._`;
   }
 
-  const header = [
-    "| Project | Description | Language | Last commit |",
-    "| :--- | :-- | :-- | --: |",
-  ];
+  const cells = projects.map(
+    (repo, index) => `  <td valign="top" width="50%">
+    <a href="${escapeHtml(repo.url)}">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-${index + 1}.svg">
+        <img src="./assets/project-light-${index + 1}.svg" alt="${escapeHtml(repo.name)}" width="236" />
+      </picture>
+    </a>
+  </td>`,
+  );
 
-  const rows = candidates.map((repo) => {
-    const description = repo.description?.trim();
-    const descriptionCell = description
-      ? escapePipes(truncate(description, 70))
-      : "_No description yet._";
+  // Pad to an even number so the table never ends with a half row.
+  while (cells.length % 2 !== 0) cells.push("  <td></td>");
 
-    return `| **[${escapeHtml(repo.name)}](${repo.html_url})** | ${descriptionCell} | ${escapeHtml(repo.language ?? "—")} | ${formatDate(repo.pushed_at)} |`;
-  });
+  const rows = [];
+  for (let i = 0; i < cells.length; i += 2) {
+    rows.push(`<tr>\n${cells[i]}\n${cells[i + 1]}\n</tr>`);
+  }
 
-  return [...header, ...rows].join("\n");
-}
-
-function formatDate(iso) {
-  const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return "—";
-  // en-CA renders as YYYY-MM-DD, which is stable regardless of runner locale.
-  return date.toLocaleDateString("en-CA");
+  return `<table>
+${rows.join("\n")}
+</table>`;
 }
 
 const readme = readFileSync("README.md", "utf8");
@@ -99,7 +75,7 @@ if (!readme.includes(START) || !readme.includes(END)) {
   process.exit(1);
 }
 
-const block = `${START}\n\n${buildTable()}\n\n${END}`;
+const block = `${START}\n\n${buildGrid()}\n\n${END}`;
 
 // Replace only the text between the markers, leaving the rest intact.
 const updated = readme.replace(
@@ -108,12 +84,10 @@ const updated = readme.replace(
 );
 
 if (updated === readme) {
-  console.log("Recently active projects are already up to date.");
+  console.log("Project grid is already up to date.");
 } else {
   writeFileSync("README.md", updated);
-  console.log(
-    `Updated recently active projects: ${candidates.map((r) => r.name).join(", ")}`,
-  );
+  console.log(`Updated project grid: ${projects.map((p) => p.name).join(", ")}`);
 }
 
 function escapeRegExp(value) {

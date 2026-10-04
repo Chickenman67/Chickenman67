@@ -1,5 +1,3 @@
-# Kevin Lu
-
 <p align="center">
   <!-- Hero banner, generated locally by .github/scripts/cards.mjs -->
   <img src="./assets/hero.svg" alt="Kevin Lu — I build small tools that do one job properly" width="780" />
@@ -12,17 +10,17 @@
 <p align="center">
   I make small, focused tools — mostly <b>automation scripts</b> and <b>file viewers</b> —
   plus the occasional web app I wished already existed.
-  Everything on this page rebuilds itself every night while I sleep.
+  Everything below rebuilds itself every night while I sleep.
 </p>
 
 ---
 
-## 🐍 Contribution Snake
+## 🐍 The Snake
 
 <p align="center">
   <picture>
     <source media="(prefers-color-scheme: dark)" srcset="./assets/snake-dark.svg">
-    <img src="./assets/snake-light.svg" alt="Snake eating your contribution graph" width="495" />
+    <img src="./assets/snake-light.svg" alt="A snake eating your contribution graph" width="495" />
   </picture>
 </p>
 
@@ -53,64 +51,71 @@
   </picture>
 </p>
 
-## 🗂️ Selected Projects
-
-<p align="center">
-  <a href="https://github.com/Chickenman67/Paint">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-Paint.svg">
-      <img src="./assets/project-light-Paint.svg" alt="Paint" width="236" />
-    </picture>
-  </a>
-  <a href="https://github.com/Chickenman67/KnowYourClassAction">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-KnowYourClassAction.svg">
-      <img src="./assets/project-light-KnowYourClassAction.svg" alt="KnowYourClassAction" width="236" />
-    </picture>
-  </a>
-  <a href="https://github.com/Chickenman67/marginalia">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-marginalia.svg">
-      <img src="./assets/project-light-marginalia.svg" alt="marginalia" width="236" />
-    </picture>
-  </a>
-</p>
-
-<p align="center">
-  <a href="https://github.com/Chickenman67/video-player">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-video-player.svg">
-      <img src="./assets/project-light-video-player.svg" alt="video-player" width="236" />
-    </picture>
-  </a>
-  <a href="https://github.com/Chickenman67/Contributor">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-Contributor.svg">
-      <img src="./assets/project-light-Contributor.svg" alt="Contributor" width="236" />
-    </picture>
-  </a>
-  <a href="https://github.com/Chickenman67/video-player-ez">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-video-player-ez.svg">
-      <img src="./assets/project-light-video-player-ez.svg" alt="video-player-ez" width="236" />
-    </picture>
-  </a>
-</p>
-
 ## 🚧 Recently Worked On
 
 <!-- Rebuilt every day by GitHub Actions. Anything between the two markers
      below is overwritten on each run; edit outside them freely. -->
 
-<!-- AUTO:RECENT:START -->
+<!-- AUTO:PROJECTS:START -->
 
-| Project | Description | Language | Last commit |
-| :--- | :-- | :-- | --: |
-| **[Paint](https://github.com/Chickenman67/Paint)** | Lets run the gauntlet | Python | 2026-10-04 |
-| **[video-player-ez](https://github.com/Chickenman67/video-player-ez)** | _No description yet._ | HTML | 2026-09-16 |
-| **[test](https://github.com/Chickenman67/test)** | _No description yet._ | HTML | 2026-08-19 |
+<table>
+<tr>
+  <td valign="top" width="50%">
+    <a href="">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-1.svg">
+        <img src="./assets/project-light-1.svg" alt="Paint" width="236" />
+      </picture>
+    </a>
+  </td>
+  <td valign="top" width="50%">
+    <a href="">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-2.svg">
+        <img src="./assets/project-light-2.svg" alt="video-player-ez" width="236" />
+      </picture>
+    </a>
+  </td>
+</tr>
+<tr>
+  <td valign="top" width="50%">
+    <a href="">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-3.svg">
+        <img src="./assets/project-light-3.svg" alt="test" width="236" />
+      </picture>
+    </a>
+  </td>
+  <td valign="top" width="50%">
+    <a href="">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-4.svg">
+        <img src="./assets/project-light-4.svg" alt="V2YoutubeAutomation" width="236" />
+      </picture>
+    </a>
+  </td>
+</tr>
+<tr>
+  <td valign="top" width="50%">
+    <a href="">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-5.svg">
+        <img src="./assets/project-light-5.svg" alt="SoulsLikeWeb" width="236" />
+      </picture>
+    </a>
+  </td>
+  <td valign="top" width="50%">
+    <a href="">
+      <picture>
+        <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-6.svg">
+        <img src="./assets/project-light-6.svg" alt="LightSpirits" width="236" />
+      </picture>
+    </a>
+  </td>
+</tr>
+</table>
 
-<!-- AUTO:RECENT:END -->
+<!-- AUTO:PROJECTS:END -->
 
 ## 🧩 What I build
 

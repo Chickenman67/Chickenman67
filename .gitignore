@@ -6,3 +6,4 @@
 # Scratch files produced by the card build, deleted before committing.
 data.raw.json
 repos.local.json
+.projects.json

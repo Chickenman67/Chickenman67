@@ -34,6 +34,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PAT || github.token }}
           OWNER: ${{ github.repository_owner }}
+          FEATURED: >-
+            video-player,KnowYourClassAction,marginalia,AI-Writer,
+            cbz-viewer-v3,ScholarScraper,YoutubeAutomator,Contributor
         run: |
           set -euo pipefail
           gh api graphql -F login="$OWNER" -f query='
@@ -68,21 +71,12 @@ jobs:
             }
           ' > data.raw.json
 
-          gh api "users/${OWNER}/repos?sort=pushed&direction=desc&per_page=100" \
-            > repos.local.json
-
           node .github/scripts/build-assets.mjs
 
       # ------------------------------------------------------------------
-      # Rewrite the "Recently Worked On" table in README.md
+      # Rewrite the project grid in README.md
       # ------------------------------------------------------------------
-      - name: Refresh recently active projects
-        env:
-          REPOS_FILE: repos.local.json
-          OWNER: ${{ github.repository_owner }}
-          FEATURED: >-
-            video-player,KnowYourClassAction,marginalia,AI-Writer,
-            cbz-viewer-v3,ScholarScraper,YoutubeAutomator,Contributor
+      - name: Refresh project grid
         run: node .github/scripts/recent-projects.mjs
 
       # ------------------------------------------------------------------
@@ -94,7 +88,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          rm -f data.raw.json repos.local.json
+          rm -f data.raw.json repos.local.json .projects.json
           git add assets/ README.md
 
           # Nothing changed (quiet day) — exit successfully without a commit.

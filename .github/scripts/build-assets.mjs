@@ -24,6 +24,9 @@ import {
  */
 const raw = JSON.parse(readFileSync("data.raw.json", "utf8")).data.user;
 
+/** How many project cards to render. Matches the table in the README. */
+const SLOTS = 6;
+
 /** Forks and archived repos are not "real" projects. */
 const repos = raw.repositories.nodes.filter(
   (repo) => !repo.isFork && !repo.isArchived,
@@ -80,11 +83,27 @@ const { current, longest } = measureStreaks(allDays);
 
 /** The profile repository itself is not a project. */
 const owner = process.env.OWNER ?? "";
+
+/**
+ * Repositories already given a hand-written spot elsewhere on the page.
+ * Read from the same environment variable the README updater uses, so both
+ * halves of the project grid always agree.
+ */
+const featured = new Set(
+  (process.env.FEATURED ?? "")
+    .split(",")
+    .map((name) => name.trim())
+    .filter(Boolean),
+);
+
+// `repositories` is already ordered by most recently pushed, which is the
+// order the project grid should use.
 const projects = repos
-  .filter((repo) => repo.name !== owner)
-  .slice(0, 6)
+  .filter((repo) => repo.name !== owner && !featured.has(repo.name))
+  .slice(0, SLOTS)
   .map((repo) => ({
     name: repo.name,
+    url: repo.html_url,
     description: repo.description,
     language: repo.primaryLanguage?.name ?? null,
     languageColor: repo.primaryLanguage?.color ?? null,
@@ -103,6 +122,10 @@ const data = {
 };
 
 mkdirSync("assets", { recursive: true });
+
+// Shared handoff file: recent-projects.mjs reads this so the links in the
+// README always match the cards rendered here.
+writeFileSync(".projects.json", JSON.stringify(projects, null, 2), "utf8");
 
 /** Map a raw contribution count onto GitHub's five-step colour scale. */
 function level(count) {
@@ -132,11 +155,15 @@ write(
 /* ---- snake ------------------------------------------------------- */
 
 // The snake visits every day that had at least one contribution, walking
-// the calendar in reading order.
-const snakeGrid = [];
+// the calendar in reading order. The full grid is drawn underneath so the
+// snake has something to visibly consume.
+const snakePath = [];
+const snakeAll = [];
 calendar.weeks.forEach((week, col) => {
   week.contributionDays.forEach((day, row) => {
-    if (day.contributionCount > 0) snakeGrid.push({ col, row });
+    const point = { col, row, level: level(day.contributionCount) };
+    snakeAll.push(point);
+    if (day.contributionCount > 0) snakePath.push(point);
   });
 });
 
@@ -147,8 +174,9 @@ for (const mode of ["light", "dark"]) {
       mode,
       cells: {
         cols: calendar.weeks.length,
-        grid: snakeGrid,
-        counts: snakeGrid.length,
+        grid: snakePath,
+        all: snakeAll,
+        counts: snakePath.length,
       },
       totalContributions: calendar.totalContributions,
     }),
@@ -194,10 +222,13 @@ for (const mode of ["light", "dark"]) {
 
 /* ---- project cards ---------------------------------------------- */
 
+// Card files are written to fixed, numbered slots (project-light-1.svg)
+// rather than per-repository names. That lets the README reference them
+// once and stay correct as the repository list changes every day.
 for (const mode of ["light", "dark"]) {
-  for (const repo of projects) {
+  projects.forEach((repo, index) => {
     write(
-      `project-${mode}-${repo.name}.svg`,
+      `project-${mode}-${index + 1}.svg`,
       projectCard({
         mode,
         name: repo.name,
@@ -207,7 +238,7 @@ for (const mode of ["light", "dark"]) {
         stars: repo.stars,
       }),
     );
-  }
+  });
 }
 
 console.log(
