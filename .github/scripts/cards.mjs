@@ -328,20 +328,21 @@ export function snakeSvg({ mode, cells, totalContributions }) {
   const levels = LEVELS[mode];
 
   const cols = cells.cols;
-  const cell = Math.max(4, Math.floor((usable - gap * (cols - 1)) / cols));
-  const height = top + rows * (cell + gap) + 18;
-
-  // The snake only visits days that had a contribution, so the whole scene
-  // is offset to the first active week instead of idling through dead space.
   const firstActiveCol = cells.grid.length ? cells.grid[0].col : 0;
   const activeCols = cols - firstActiveCol;
 
-  // Wider cells look better once the empty weeks are cropped away.
+  // Size the cells from the weeks that actually contain activity, so the
+  // empty leading weeks are cropped away instead of wasting a third of the
+  // card on a dead zone.
   const liveCell = Math.max(
     4,
-    Math.min(9, Math.floor((usable - gap * (activeCols - 1)) / activeCols)),
+    Math.min(10, Math.floor((usable - gap * (activeCols - 1)) / activeCols)),
   );
   const step = liveCell + gap;
+
+  // Seven weekday rows, plus room for the stroke width so the body never
+  // bleeds through the bottom border.
+  const height = top + (rows - 1) * step + liveCell + 26;
   const offsetX = padding + Math.round((usable - (activeCols * step - gap)) / 2);
 
   const pos = (point) => ({
