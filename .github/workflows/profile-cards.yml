@@ -1,0 +1,135 @@
+name: Update Profile Cards
+
+on:
+  schedule:
+    # Daily at 08:17 UTC. The non-zero minute avoids GitHub's top-of-hour
+    # scheduling congestion. Cron on GitHub Actions is always UTC.
+    - cron: "17 8 * * *"
+  # Lets you refresh manually from the Actions tab (useful after tweaking).
+  workflow_dispatch:
+
+# Never let two runs race each other on `git push`.
+concurrency:
+  group: profile-cards
+  cancel-in-progress: false
+
+permissions:
+  contents: write # REQUIRED. The default GITHUB_TOKEN is read-only; without
+                  # this line the commit silently does nothing.
+
+jobs:
+  update-cards:
+    name: Generate stats cards and refresh project list
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      # ------------------------------------------------------------------
+      # Stats card — light + dark variants
+      # Theme "light_github" / "github_dark" mirror GitHub's own surfaces so
+      # the cards blend into the profile in either colour scheme.
+      # ------------------------------------------------------------------
+      - name: Generate stats card (dark)
+        uses: stats-organization/github-readme-stats-action@v2
+        with:
+          card: stats
+          path: assets/stats-dark.svg
+          token: ${{ secrets.PAT || github.token }}
+          fail_on_error: true
+          options: >-
+            username=${{ github.repository_owner }}&show_icons=true&theme=github_dark&hide_rank=false&rank_icon=github&contribs_include_own_repos=true&include_all_commits=false&custom_title=Kevin%20Lu%20%E2%80%94%20GitHub%20Stats&disable_animations=true
+
+      - name: Generate stats card (light)
+        uses: stats-organization/github-readme-stats-action@v2
+        with:
+          card: stats
+          path: assets/stats-light.svg
+          token: ${{ secrets.PAT || github.token }}
+          fail_on_error: true
+          options: >-
+            username=${{ github.repository_owner }}&show_icons=true&theme=light_github&hide_rank=false&rank_icon=github&contribs_include_own_repos=true&include_all_commits=false&custom_title=Kevin%20Lu%20%E2%80%94%20GitHub%20Stats&disable_animations=true
+
+# ------------------------------------------------------------------
+      # Top languages card — compact layout, 8 languages
+      # ------------------------------------------------------------------
+      - name: Generate top languages card (dark)
+        uses: stats-organization/github-readme-stats-action@v2
+        with:
+          card: top-langs
+          path: assets/top-langs-dark.svg
+          token: ${{ secrets.PAT || github.token }}
+          fail_on_error: true
+          options: >-
+            username=${{ github.repository_owner }}&theme=github_dark&layout=compact&langs_count=8&show_icons=true&card_width=340&disable_animations=true
+
+      - name: Generate top languages card (light)
+        uses: stats-organization/github-readme-stats-action@v2
+        with:
+          card: top-langs
+          path: assets/top-langs-light.svg
+          token: ${{ secrets.PAT || github.token }}
+          fail_on_error: true
+          options: >-
+            username=${{ github.repository_owner }}&theme=light_github&layout=compact&langs_count=8&show_icons=true&card_width=340&disable_animations=true
+
+      # ------------------------------------------------------------------
+      # Contribution streak card
+      # Separate project (DenverCoder1), separate PHP-based action.
+      # ------------------------------------------------------------------
+      - name: Generate streak card (dark)
+        uses: DenverCoder1/github-readme-streak-stats@v1
+        with:
+          path: assets/streak-dark.svg
+          token: ${{ secrets.PAT || github.token }}
+          options: >-
+            user=${{ github.repository_owner }}&theme=dark&hide_border=true&disable_animations=true&date_format=YYYY-MM-DD
+
+      - name: Generate streak card (light)
+        uses: DenverCoder1/github-readme-streak-stats@v1
+        with:
+          path: assets/streak-light.svg
+          token: ${{ secrets.PAT || github.token }}
+          options: >-
+            user=${{ github.repository_owner }}&theme=default&hide_border=true&disable_animations=true&date_format=YYYY-MM-DD
+
+# ------------------------------------------------------------------
+      # Auto-discover recently active repositories and rewrite the block
+      # of README.md between the AUTO markers.
+      #
+      # GitHub's markdown renderer has no include/transclusion feature, so
+      # the only way to keep a generated list fresh is to rewrite the block
+      # in place. Everything outside the markers is left untouched.
+      # ------------------------------------------------------------------
+      - name: Refresh recently active projects
+        env:
+          GH_TOKEN: ${{ secrets.PAT || github.token }}
+          OWNER: ${{ github.repository_owner }}
+          FEATURED: >-
+            video-player,KnowYourClassAction,marginalia,AI-Writer,
+            cbz-viewer-v3,ScholarScraper,YoutubeAutomator,Contributor
+        run: |
+          set -euo pipefail
+          gh api "users/${OWNER}/repos?sort=pushed&direction=desc&per_page=100" \
+            > /tmp/repos.json
+          node .github/scripts/recent-projects.mjs
+
+      # ------------------------------------------------------------------
+      # Commit whatever changed
+      # ------------------------------------------------------------------
+      - name: Commit updated cards
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add assets/ README.md
+
+          # Nothing changed (quiet day) — exit successfully without a commit.
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+
+          git commit -m "chore: update profile cards and recent projects"
+          git push
