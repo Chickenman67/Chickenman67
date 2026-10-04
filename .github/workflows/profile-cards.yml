@@ -93,7 +93,18 @@ jobs:
         run: node .github/scripts/validate.mjs
 
       # ------------------------------------------------------------------
-      # Commit whatever changed
+      # Commit whatever changed.
+      #
+      # The remote can advance between checkout and push -- a human
+      # committing, or a second run. `concurrency` above stops two *runs*
+      # colliding but cannot stop a human, so the push can still be rejected.
+      #
+      # An earlier version retried with `git pull --rebase`. That was wrong:
+      # both sides rewrite the same files (assets/*.svg and the README block),
+      # so the rebase conflicts, leaves the tree mid-rebase on a detached
+      # HEAD, and `set -e` aborts the step. Regenerating on top of the new
+      # tip is both correct and simpler -- the output is a pure function of
+      # the API data, so re-running it is deterministic and cannot conflict.
       # ------------------------------------------------------------------
       - name: Commit updated cards
         run: |
@@ -101,28 +112,54 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          rm -f data.raw.json repos.local.json .projects.json
+          # data.raw.json is kept until the very end: the retry path below
+          # re-runs build-assets.mjs, which reads it. `git reset --hard` does
+          # not touch untracked files, so it survives a rebuild.
+          rm -f repos.local.json .projects.json
           git add assets/ README.md
 
           # Nothing changed (quiet day) — exit successfully without a commit.
           if git diff --cached --quiet; then
             echo "No changes to commit."
+            rm -f data.raw.json
             exit 0
           fi
 
           git commit -m "chore: refresh profile cards"
 
-          # The remote can advance between checkout and push (a human
-          # committing, or a run overlapping this one), so rebase and retry
-          # rather than failing the whole workflow on a rejected push.
           for attempt in 1 2 3; do
             if git push; then
               echo "Pushed on attempt ${attempt}."
+              rm -f data.raw.json
               exit 0
             fi
-            echo "Push rejected on attempt ${attempt}; rebasing onto remote."
-            git pull --rebase --autostash origin "${GITHUB_REF_NAME}"
+
+            echo "::warning::Push rejected on attempt ${attempt}; remote moved."
+            git fetch --quiet origin "${GITHUB_REF_NAME}"
+
+            # Rebuild from the remote tip rather than merging onto a stale
+            # checkout. The generated files are a pure function of the API
+            # data, so re-running is deterministic and cannot conflict the
+            # way `git pull --rebase` did.
+            git reset --hard "origin/${GITHUB_REF_NAME}"
+            node .github/scripts/build-assets.mjs
+            node .github/scripts/recent-projects.mjs
+            node .github/scripts/validate.mjs
+
+            rm -f repos.local.json .projects.json
+            git add assets/ README.md
+
+            # The remote already carried this output, so there is nothing
+            # left to push.
+            if git diff --cached --quiet; then
+              echo "Remote already up to date after reset; nothing to commit."
+              rm -f data.raw.json
+              exit 0
+            fi
+
+            git commit -m "chore: refresh profile cards"
           done
 
           echo "Unable to push after 3 attempts." >&2
+          rm -f data.raw.json
           exit 1
