@@ -7,12 +7,10 @@
 </p>
 
 <p align="center">
-  <a href="https://skillicons.dev/icons?i=python,js,ts,html,git,github">
-    <img src="https://skillicons.dev/icons?i=python,js,ts,html,git,github&theme=dark" alt="Skills" />
-  </a>
-  <a href="https://skillicons.dev/icons?i=python,js,ts,html,git,github">
-    <img src="https://skillicons.dev/icons?i=python,js,ts,html,git,github&theme=light" alt="Skills" />
-  </a>
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://skillicons.dev/icons?i=python,js,ts,html,git,github&theme=dark">
+    <img src="https://skillicons.dev/icons?i=python,js,ts,html,git,github&theme=light" alt="Python, JavaScript, TypeScript, HTML, Git and GitHub" />
+  </picture>
 </p>
 
 <p align="center">
