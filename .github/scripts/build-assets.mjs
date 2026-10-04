@@ -96,9 +96,16 @@ const featured = new Set(
     .filter(Boolean),
 );
 
-// `repositories` is already ordered by most recently pushed, which is the
-// order the project grid should use.
-const projects = repos
+// `repositories` is already ordered by most recently pushed. Repos with a
+// description are preferred over empty ones — a card reading "No
+// description yet" six times in a row looks broken, not minimal — and
+// recency breaks the tie within each group.
+const ordered = [...repos].sort((a, b) => {
+  const described = (repo) => (repo.description?.trim() ? 0 : 1);
+  return described(a) - described(b);
+});
+
+const projects = ordered
   .filter((repo) => repo.name !== owner && !featured.has(repo.name))
   .slice(0, SLOTS)
   .map((repo) => ({

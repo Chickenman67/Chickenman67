@@ -49,9 +49,13 @@ const escapeXml = (value) =>
 /** Wrap a card body in the shared shell: background, border, title, clip. */
 function shell({ title, body, width, height, mode, radius = 12 }) {
   const c = PALETTE[mode];
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="${escapeXml(title)}">
+  // An empty title collapses the header row instead of leaving a gap.
+  const heading = title
+    ? `<text x="20" y="31" font-family="${FONT}" font-size="15" font-weight="600" fill="${c.title}">${escapeXml(title)}</text>`
+    : "";
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img"${title ? ` aria-label="${escapeXml(title)}"` : ""}>
   <rect x="0.5" y="0.5" width="${width - 1}" height="${height - 1}" rx="${radius}" fill="${c.bg}" stroke="${c.border}"/>
-  <text x="20" y="31" font-family="${FONT}" font-size="15" font-weight="600" fill="${c.title}">${escapeXml(title)}</text>
+  ${heading}
   ${body}
 </svg>
 `;
@@ -134,40 +138,42 @@ const LEVELS = {
  * week, one row per weekday.
  */
 export function activityCard({ mode, weeks, totalContributions, currentStreak, longestStreak }) {
-  // The card is a fixed 495px wide, so the cell size is derived from how
-  // many weeks have to fit rather than hard-coded. A year of history must
-  // never overflow the card and get clipped by the viewBox.
   const width = 495;
   const padding = 20;
   const usable = width - padding * 2;
   const gap = 3;
   const rows = 7;
-
-  const cols = weeks.length;
-  const cell = Math.max(4, Math.floor((usable - gap * (cols - 1)) / cols));
-  const actualGraphWidth = cols * cell + (cols - 1) * gap;
-
-  const cellGapY = Math.max(cell + gap, Math.floor((cell * 1.9) / rows));
-  const top = 58;
-  const height = top + (rows - 1) * cellGapY + cell + 56;
+  const top = 44;
   const c = PALETTE[mode];
   const levels = LEVELS[mode];
 
-  const offsetX = padding + Math.round((usable - actualGraphWidth) / 2);
+  // Crop the leading weeks that contain no activity, matching the snake. A
+  // year of mostly-empty columns would otherwise waste half the card.
+  const firstActive = weeks.findIndex((week) =>
+    week.days.some((day) => day.count > 0),
+  );
+  const offset = firstActive === -1 ? 0 : firstActive;
+  const live = weeks.slice(offset);
+  const activeCols = live.length;
 
-  const squares = weeks
+  const cell = Math.max(4, Math.min(10, Math.floor((usable - gap * (activeCols - 1)) / activeCols)));
+  const step = cell + gap;
+  const offsetX = padding + Math.round((usable - (activeCols * step - gap)) / 2);
+  const height = top + (rows - 1) * step + cell + 46;
+
+  const squares = live
     .map((week, weekIndex) =>
       week.days
         .map((day, dayIndex) => {
-          const x = offsetX + weekIndex * (cell + gap);
-          const y = top + dayIndex * cellGapY;
+          const x = offsetX + weekIndex * step;
+          const y = top + dayIndex * step;
           return `<rect x="${x}" y="${y}" width="${cell}" height="${cell}" rx="${Math.min(2.5, cell / 4)}" fill="${levels[day.level]}"/>`;
         })
         .join(""),
     )
     .join("");
 
-  const footerY = height - 30;
+  const footerY = height - 26;
   const body = `${squares}
   <g font-family="${FONT}" font-size="12.5">
     <text x="${padding}" y="${footerY}" fill="${c.muted}">
@@ -181,7 +187,7 @@ export function activityCard({ mode, weeks, totalContributions, currentStreak, l
     </text>
   </g>`;
 
-  return shell({ title: "Activity", body, width, height, mode });
+  return shell({ title: "", body, width, height, mode });
 }
 
 /* ------------------------------------------------------------------ */
@@ -384,8 +390,8 @@ export function snakeSvg({ mode, cells, totalContributions }) {
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-label="A snake eating ${escapeXml(totalContributions)} contributions">
   <style>
     @keyframes slither {
-      from { stroke-dashoffset: ${bodyLength}; }
-      to   { stroke-dashoffset: ${-total - bodyLength}; }
+      from { stroke-dashoffset: 0; }
+      to   { stroke-dashoffset: ${-(total - bodyLength)}; }
     }
     @keyframes blink {
       0%, 100% { opacity: 1; }
@@ -395,7 +401,10 @@ export function snakeSvg({ mode, cells, totalContributions }) {
       fill: none;
       stroke-linecap: round;
       stroke-linejoin: round;
-      stroke-dasharray: ${bodyLength} ${total + bodyLength * 2};
+      /* One lit segment followed by a gap longer than the whole path, and an
+         offset range of 0 → -(path - segment). That keeps the segment on the
+         path for the entire cycle, so the snake is never invisible. */
+      stroke-dasharray: ${bodyLength} ${total};
       animation: slither ${duration}s linear infinite;
     }
     .eye { animation: blink 0.9s steps(1) infinite; }
@@ -408,7 +417,6 @@ export function snakeSvg({ mode, cells, totalContributions }) {
     </linearGradient>
   </defs>
   <rect x="0.5" y="0.5" width="${width - 1}" height="${height - 1}" rx="12" fill="${c.bg}" stroke="${c.border}"/>
-  <text x="${padding}" y="30" font-family="${FONT}" font-size="13.5" font-weight="600" fill="${c.title}">Contribution Snake</text>
   <text x="${width - padding}" y="30" text-anchor="end" font-family="${FONT}" font-size="11.5" fill="${c.muted}">${escapeXml(totalContributions)} commits · ${escapeXml(activeCols)} active weeks</text>
   ${squares}
   <path class="snake" d="${segments.join(" ")}" stroke="url(#snakeSkin)" stroke-width="${stroke.toFixed(2)}"/>

@@ -72,7 +72,7 @@
     <a href="">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-2.svg">
-        <img src="./assets/project-light-2.svg" alt="video-player-ez" width="236" />
+        <img src="./assets/project-light-2.svg" alt="GodEngine" width="236" />
       </picture>
     </a>
   </td>
@@ -82,7 +82,7 @@
     <a href="">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-3.svg">
-        <img src="./assets/project-light-3.svg" alt="test" width="236" />
+        <img src="./assets/project-light-3.svg" alt="OperaGX-Spoofer" width="236" />
       </picture>
     </a>
   </td>
@@ -90,7 +90,7 @@
     <a href="">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-4.svg">
-        <img src="./assets/project-light-4.svg" alt="V2YoutubeAutomation" width="236" />
+        <img src="./assets/project-light-4.svg" alt="AutoSerach" width="236" />
       </picture>
     </a>
   </td>
@@ -100,7 +100,7 @@
     <a href="">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-5.svg">
-        <img src="./assets/project-light-5.svg" alt="SoulsLikeWeb" width="236" />
+        <img src="./assets/project-light-5.svg" alt="CBZ-Viewer-Optimized" width="236" />
       </picture>
     </a>
   </td>
@@ -108,7 +108,7 @@
     <a href="">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-6.svg">
-        <img src="./assets/project-light-6.svg" alt="LightSpirits" width="236" />
+        <img src="./assets/project-light-6.svg" alt="CBZ-Viewer" width="236" />
       </picture>
     </a>
   </td>
