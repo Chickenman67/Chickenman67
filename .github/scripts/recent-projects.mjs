@@ -32,7 +32,7 @@ const featured = new Set(
     .filter(Boolean),
 );
 
-const repos = JSON.parse(readFileSync("/tmp/repos.json", "utf8"));
+const repos = JSON.parse(readFileSync(process.env.REPOS_FILE ?? "/tmp/repos.json", "utf8"));
 
 /** Escape text before it lands inside an HTML table cell. */
 const escapeHtml = (value) =>

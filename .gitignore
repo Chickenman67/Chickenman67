@@ -1,0 +1,8 @@
+# Keep line endings as LF in the repository.
+# The Actions workflow reads README.md and the script matches the AUTO
+# markers by exact text; a stray CRLF would make the match fail on Ubuntu.
+* text=auto eol=lf
+
+# Scratch files produced by the card build, deleted before committing.
+data.raw.json
+repos.local.json
