@@ -26,17 +26,19 @@ const runNode = (cwd, script, ...args) =>
 
 /** The pre-fix strategy, kept only so a regression cannot pass unnoticed. */
 function legacyLoop(bot, remote, branch) {
-  git(bot, "config", "user.name", "t");
-  git(bot, "config", "user.email", "t@t");
-  git(bot, "add", "assets", "README.md");
-  if (git(bot, "diff", "--cached", "--quiet")) return 0;
-  git(bot, "commit", "--quiet", "-m", "chore: refresh profile cards");
+  const b = (...args) =>
+    run("git", ["-C", bot, "-c", "user.name=t", "-c", "user.email=t@t", ...args], {
+      encoding: "utf8",
+    }).trim();
+  b("add", "assets", "README.md");
+  if (b("diff", "--cached", "--quiet")) return 0;
+  b("commit", "--quiet", "-m", "chore: refresh profile cards");
   for (let attempt = 1; attempt <= 3; attempt += 1) {
     try {
-      git(bot, "push", "origin", `HEAD:${branch}`);
+      b("push", "origin", `HEAD:${branch}`);
       return 0;
     } catch {
-      git(bot, "pull", "--rebase", "--autostash", "origin", branch);
+      b("pull", "--rebase", "--autostash", "origin", branch);
     }
   }
   return 1;
@@ -60,6 +62,11 @@ fs.mkdirSync(scratch, { recursive: true });
 const remote = path.join(scratch, "remote.git");
 git(scratch, "init", "--quiet", "--bare", remote);
 
+// The seed commits run before retry.sh sets any identity, and CI starts with
+// no user.name/user.email configured, so set them per-invocation here.
+const seedGit = (...args) =>
+  git(scratch, "-c", "user.name=t", "-c", "user.email=t@t", ...args);
+
 // Seed the remote from the current working tree.
 const seed = path.join(scratch, "seed");
 git(scratch, "clone", "--quiet", remote, seed);
@@ -70,12 +77,12 @@ for (const entry of fs.readdirSync(repoRoot)) {
   });
 }
 // Only track what the workflow would actually commit.
-git(seed, "add", "-A");
-git(seed, "commit", "--quiet", "-m", "seed");
+seedGit("-C", seed, "add", "-A");
+seedGit("-C", seed, "commit", "--quiet", "-m", "seed");
 // Perturb the generated assets so the bot's rebuild produces a real diff.
 fs.appendFileSync(path.join(seed, "assets", "stats-dark.svg"), "\n<!-- seed -->\n");
-git(seed, "add", "-A");
-git(seed, "commit", "--quiet", "-m", "seed: perturb generated asset");
+seedGit("-C", seed, "add", "-A");
+seedGit("-C", seed, "commit", "--quiet", "-m", "seed: perturb generated asset");
 git(seed, "push", "--quiet", "origin", "master");
 
 // --- Scenario: remote moves between the bot's checkout and its push -------
@@ -98,9 +105,11 @@ runNode(bot, path.join(bot, ".github/scripts/recent-projects.mjs"));
 const human = path.join(scratch, "human");
 git(scratch, "clone", "--quiet", remote, human);
 fs.appendFileSync(path.join(human, "README.md"), "\n<!-- human edit -->\n");
-git(human, "add", "README.md");
-git(human, "commit", "--quiet", "-m", "human edit");
-git(human, "push", "--quiet", "origin", "master");
+const humanGit = (...args) =>
+  git(scratch, "-C", human, "-c", "user.name=human", "-c", "user.email=h@h", ...args);
+humanGit("add", "README.md");
+humanGit("commit", "--quiet", "-m", "human edit");
+humanGit("push", "--quiet", "origin", "master");
 
 // The bot now runs the real workflow loop.
 let exit = 0;
