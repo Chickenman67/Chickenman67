@@ -4,31 +4,31 @@
     <g>
     <text x="20" y="69" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2328">JavaScript</text>
     <rect x="150" y="60" width="291" height="11" rx="5.5" fill="#eaeef2"/>
-    <rect x="150" y="60" width="106.15384615384616" height="11" rx="5.5" fill="#f1e05a"/>
-    <text x="475" y="69" text-anchor="end" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace" font-size="11.5" fill="#59636e">28.6%</text>
+    <rect x="150" y="60" width="115.00000000000003" height="11" rx="5.5" fill="#f1e05a"/>
+    <text x="475" y="69" text-anchor="end" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace" font-size="11.5" fill="#59636e">32.1%</text>
   </g>
   <g>
     <text x="20" y="99" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2328">Python</text>
     <rect x="150" y="90" width="291" height="11" rx="5.5" fill="#eaeef2"/>
-    <rect x="150" y="90" width="92.8846153846154" height="11" rx="5.5" fill="#3572A5"/>
+    <rect x="150" y="90" width="89.44444444444446" height="11" rx="5.5" fill="#3572A5"/>
     <text x="475" y="99" text-anchor="end" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace" font-size="11.5" fill="#59636e">25.0%</text>
   </g>
   <g>
     <text x="20" y="129" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2328">HTML</text>
     <rect x="150" y="120" width="291" height="11" rx="5.5" fill="#eaeef2"/>
-    <rect x="150" y="120" width="79.61538461538461" height="11" rx="5.5" fill="#e34c26"/>
+    <rect x="150" y="120" width="76.66666666666667" height="11" rx="5.5" fill="#e34c26"/>
     <text x="475" y="129" text-anchor="end" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace" font-size="11.5" fill="#59636e">21.4%</text>
   </g>
   <g>
     <text x="20" y="159" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2328">Wolfram Language</text>
     <rect x="150" y="150" width="291" height="11" rx="5.5" fill="#eaeef2"/>
-    <rect x="150" y="150" width="39.80769230769231" height="11" rx="5.5" fill="#dd1100"/>
+    <rect x="150" y="150" width="38.333333333333336" height="11" rx="5.5" fill="#dd1100"/>
     <text x="475" y="159" text-anchor="end" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace" font-size="11.5" fill="#59636e">10.7%</text>
   </g>
   <g>
     <text x="20" y="189" font-family="'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif" font-size="13" fill="#1f2328">C++</text>
     <rect x="150" y="180" width="291" height="11" rx="5.5" fill="#eaeef2"/>
-    <rect x="150" y="180" width="26.53846153846154" height="11" rx="5.5" fill="#f34b7d"/>
+    <rect x="150" y="180" width="25.555555555555557" height="11" rx="5.5" fill="#f34b7d"/>
     <text x="475" y="189" text-anchor="end" font-family="ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace" font-size="11.5" fill="#59636e">7.1%</text>
   </g>
 </svg>
