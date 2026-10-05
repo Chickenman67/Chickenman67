@@ -42,15 +42,21 @@ function buildGrid() {
     return `_No recent projects found._`;
   }
 
+  // alt is the last path segment of the link, so the accessible name and the
+  // destination are derived from one value and can never disagree. Deriving
+  // alt from `name` instead let the two drift apart and hard-fail validation.
   const cells = projects.map(
-    (repo, index) => `  <td valign="top" width="50%">
+    (repo, index) => {
+      const slug = String(repo.url).split("/").filter(Boolean).pop();
+      return `  <td valign="top" width="50%">
     <a href="${escapeHtml(repo.url)}">
       <picture>
         <source media="(prefers-color-scheme: dark)" srcset="./assets/project-dark-${index + 1}.svg">
-        <img src="./assets/project-light-${index + 1}.svg" alt="${escapeHtml(repo.name)}" width="340" />
+        <img src="./assets/project-light-${index + 1}.svg" alt="${escapeHtml(slug ?? repo.name)}" width="340" />
       </picture>
     </a>
-  </td>`,
+  </td>`;
+    },
   );
 
   // Pad to an even number so the table never ends with a half row.

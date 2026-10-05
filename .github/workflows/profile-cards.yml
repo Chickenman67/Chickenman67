@@ -93,6 +93,17 @@ jobs:
         run: node .github/scripts/validate.mjs
 
       # ------------------------------------------------------------------
+      # Run the offline test suite against the real generators.
+      #
+      # validate.mjs only checks the output. These suites additionally prove
+      # the checks still fire, that the generators are deterministic (which
+      # the retry path depends on), and that a rejected push recovers. They
+      # need bash, which ubuntu-latest has; they never touch the network.
+      # ------------------------------------------------------------------
+      - name: Run test suite
+        run: bash .harness/run-tests.sh
+
+      # ------------------------------------------------------------------
       # Commit whatever changed.
       #
       # The remote can advance between checkout and push -- a human

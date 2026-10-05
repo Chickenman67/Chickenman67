@@ -83,7 +83,13 @@ const cells = [
   ...readme.matchAll(/<a href="([^"]*)">\s*<picture>[\s\S]*?alt="([^"]*)"/g),
 ];
 
-if (cells.length === 0) fail("No project cards found in README.md");
+// Zero cards is legitimate -- every repo can be excluded, or all of them can
+// be forks/archived. Only flag it when the grid is genuinely absent, i.e. the
+// marker block has no table at all (which means recent-projects.mjs did not
+// run or the markers were damaged).
+if (cells.length === 0 && !/AUTO:PROJECTS:START[\s\S]*<table>/.test(readme)) {
+  fail("No project grid table found between the AUTO markers");
+}
 
 for (const [, href, alt] of cells) {
   // The exact failure this check exists for: an unresolved field yielding "".

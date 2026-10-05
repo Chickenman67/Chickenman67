@@ -8,7 +8,7 @@
  * are only written once all of them have been generated successfully.
  */
 
-import { writeFileSync, mkdirSync, readFileSync } from "node:fs";
+import { writeFileSync, mkdirSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import {
   statsCard,
   languagesCard,
@@ -132,6 +132,17 @@ const data = {
 };
 
 mkdirSync("assets", { recursive: true });
+
+// Remove project cards from previous runs before writing the new set.
+// Without this, dropping below SLOTS projects (or renaming one) leaves
+// orphaned project-{light,dark}-N.svg files behind. validate.mjs correctly
+// reports those as "never referenced by the README", which would then fail
+// the workflow on every future run and freeze the profile updates.
+for (const file of readdirSync("assets")) {
+  if (/^project-(light|dark)-\d+\.svg$/.test(file)) {
+    rmSync(`assets/${file}`);
+  }
+}
 
 // Shared handoff file: recent-projects.mjs reads this so the links in the
 // README always match the cards rendered here.
